@@ -26,11 +26,11 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           server-id: github
-          settings-path: ${{ github.workspace }}
 
       - name: Publish to GitHub Packages (Maven)
-        run: mvn --batch-mode deploy -DskipTests
+        run: mvn --batch-mode deploy -DskipTests --settings ~/.m2/settings.xml
         env:
+          GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-container:
