@@ -387,12 +387,4 @@ Contributions are welcome. If you'd like to improve the project:
 
 # License
 
-This project is released under the **MIT License**.
-
----
-
-# Author
-
-Created by **Sonu Jana**
-
-If this project helps you, consider giving it a ⭐ on GitHub.
+This project is released under the **[MIT License](https://github.com/sonuworks/github-access-report/blob/main/LICENSE)**.
