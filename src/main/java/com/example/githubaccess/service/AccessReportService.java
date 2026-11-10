@@ -8,6 +8,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -23,31 +24,43 @@ public class AccessReportService {
     private static final Logger log = LoggerFactory.getLogger(AccessReportService.class);
 
     private final GithubApiClient githubApiClient;
+    private final int concurrency;
 
     private final Cache<String, AccessReportResponse> reportCache = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(10))
             .maximumSize(100)
             .build();
 
-    public AccessReportService(GithubApiClient githubApiClient) {
+    public AccessReportService(GithubApiClient githubApiClient,
+                               @Value("${github.api.concurrency:20}") int concurrency) {
         this.githubApiClient = githubApiClient;
+        this.concurrency = concurrency;
     }
 
     public Mono<AccessReportResponse> generateReport(String org) {
-        AccessReportResponse cached = reportCache.getIfPresent(org);
-        if (cached != null) {
-            log.info("Returning cached report for org '{}'", org);
-            return Mono.just(cached);
+        return generateReport(org, false);
+    }
+
+    public Mono<AccessReportResponse> generateReport(String org, boolean forceRefresh) {
+        if (!forceRefresh) {
+            AccessReportResponse cached = reportCache.getIfPresent(org);
+            if (cached != null) {
+                log.info("Returning cached report for org '{}'", org);
+                return Mono.just(cached);
+            }
+        } else {
+            reportCache.invalidate(org);
+            log.info("Force refresh requested for org '{}' (evicted from cache)", org);
         }
 
-        log.info("Building access report for org '{}' (cache miss)", org);
+        log.info("Building access report for org '{}' (cache miss, concurrency={})", org, concurrency);
         ConcurrentAggregator aggregator = new ConcurrentAggregator();
 
         return githubApiClient.fetchOrgRepositories(org)
                 .flatMap(repo -> githubApiClient.fetchRepositoryCollaborators(org, repo.name())
                         .doOnNext(collaborator -> aggregator.addAccess(collaborator.login(), repo.name()))
                         .then(),
-                        5)
+                        concurrency)
                 .then(Mono.fromCallable(() -> {
                     AccessReportResponse report = buildResponse(org, aggregator);
                     reportCache.put(org, report);

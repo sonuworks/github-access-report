@@ -8,8 +8,9 @@ server:
 github:
   api:
     base-url: https://api.github.com
-    token: ${GITHUB_TOKEN}
+    token: ${GITHUB_TOKEN:}
     per-page: 100
+    concurrency: 20
     connect-timeout-seconds: 10
     read-timeout-seconds: 30
 

@@ -37,12 +37,13 @@ public class RateLimitGuard {
         long waitSeconds = reset - Instant.now().getEpochSecond();
 
         if (waitSeconds <= 0) {
+            remaining.set(5000);
             return Mono.empty();
         }
 
         if (waitSeconds > FAIL_FAST_THRESHOLD_SECONDS) {
             log.warn("Rate limit exhausted. Reset is {}s away — failing fast.", waitSeconds);
-            throw new RateLimitExceededException(reset);
+            return Mono.error(new RateLimitExceededException(reset));
         }
 
         log.warn("Rate limit exhausted. Waiting {}s until reset at {}.", waitSeconds, Instant.ofEpochSecond(reset));

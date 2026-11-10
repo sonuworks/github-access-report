@@ -9,7 +9,7 @@ Built for reliability, scalability, and clean API design.
 <br>
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-brightgreen)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.13-brightgreen)
 ![WebFlux](https://img.shields.io/badge/WebFlux-Reactive-blue)
 ![Build](https://img.shields.io/badge/Maven-Build-red)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
@@ -100,23 +100,83 @@ The `application.yml` binds this value automatically:
 ```yaml
 github:
   api:
-    token: ${GITHUB_TOKEN}
+    token: ${GITHUB_TOKEN:}
+    concurrency: 20
 ```
 
 ---
 
 # Running the Project
 
-Run the application using Maven:
+### Using Maven
 
 ```bash
 mvn spring-boot:run
+```
+
+### Running Tests
+
+```bash
+mvn test
+```
+
+### Using Docker
+
+```bash
+# Build Docker image
+docker build -t github-access-report .
+
+# Run container
+docker run -p 8080:8080 -e GITHUB_TOKEN="ghp_your_token_here" github-access-report
 ```
 
 The server starts on:
 
 ```
 http://localhost:8080
+```
+
+Health check endpoint:
+```
+http://localhost:8080/actuator/health
+```
+
+---
+
+# GitHub Packages & Registries
+
+This project is configured to publish automatically to **GitHub Packages**:
+
+### 1. Docker Container (`ghcr.io`)
+
+Pull and run directly from GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/sonuworks/github-access-report:latest
+docker run -p 8080:8080 -e GITHUB_TOKEN="ghp_your_token_here" ghcr.io/sonuworks/github-access-report:latest
+```
+
+### 2. Apache Maven (`maven.pkg.github.com`)
+
+Add the dependency to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.sonuworks</groupId>
+    <artifactId>github-access</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+Add the GitHub repository to your `pom.xml` or `~/.m2/settings.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/sonuworks/github-access-report</url>
+    </repository>
+</repositories>
 ```
 
 ---
@@ -126,19 +186,24 @@ http://localhost:8080
 ## Endpoint
 
 ```
-GET /api/access-report?org={organization}
+GET /api/access-report?org={organization}&forceRefresh={boolean}
 ```
 
-| Parameter | Type   | Required | Description                    |
-| --------- | ------ | -------- | ------------------------------ |
-| org       | String | Yes      | GitHub organization login name |
+| Parameter      | Type    | Required | Default | Description                                   |
+| -------------- | ------- | -------- | ------- | --------------------------------------------- |
+| `org`          | String  | Yes      | -       | GitHub organization login name                |
+| `forceRefresh` | Boolean | No       | `false` | When true, evicts cache and fetches fresh data |
 
 ---
 
-## Example Request
+## Example Requests
 
 ```bash
+# Standard cached request (10-minute cache)
 curl "http://localhost:8080/api/access-report?org=my-org"
+
+# Force cache bypass & fresh report
+curl "http://localhost:8080/api/access-report?org=my-org&forceRefresh=true"
 ```
 
 ---
@@ -249,7 +314,7 @@ on collaborator endpoints are ignored to avoid failing the entire report.
 
 | Component   | Technology               |
 | ----------- | ------------------------ |
-| Framework   | Spring Boot 3.4.3        |
+| Framework   | Spring Boot 3.4.13       |
 | Language    | Java 21                  |
 | HTTP Client | Spring WebFlux WebClient |
 | JSON        | Jackson                  |
@@ -274,7 +339,8 @@ src/main/java/com/example/githubaccess/
 │   └── AccessReportService.java
 
 ├── client/
-│   └── GithubApiClient.java
+│   ├── GithubApiClient.java
+│   └── RateLimitGuard.java
 
 ├── model/
 │   ├── RepositoryResponse.java
@@ -286,10 +352,24 @@ src/main/java/com/example/githubaccess/
 │   └── ConcurrentAggregator.java
 
 └── exception/
-    └── GlobalExceptionHandler.java
+    ├── GlobalExceptionHandler.java
+    ├── OrganizationNotFoundException.java
+    └── RateLimitExceededException.java
 
 src/main/resources/
 └── application.yml
+
+src/test/java/com/example/githubaccess/
+├── GithubAccessApplicationTests.java
+├── client/
+│   ├── GithubApiClientTest.java
+│   └── RateLimitGuardTest.java
+├── controller/
+│   └── AccessReportControllerTest.java
+├── service/
+│   └── AccessReportServiceTest.java
+└── util/
+    └── ConcurrentAggregatorTest.java
 ```
 
 ---

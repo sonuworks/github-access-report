@@ -1,20 +1,22 @@
 package com.example.githubaccess.util;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConcurrentAggregator {
 
-    private final ConcurrentHashMap<String, List<String>> userRepoMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Set<String>> userRepoMap = new ConcurrentHashMap<>();
 
     public void addAccess(String username, String repositoryName) {
-        userRepoMap.computeIfAbsent(username, k -> Collections.synchronizedList(new ArrayList<>()))
-                .add(repositoryName);
+        if (username != null && repositoryName != null) {
+            userRepoMap.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet())
+                    .add(repositoryName);
+        }
     }
 
-    public ConcurrentHashMap<String, List<String>> getSnapshot() {
-        return userRepoMap;
+    public Map<String, Set<String>> getSnapshot() {
+        return Collections.unmodifiableMap(userRepoMap);
     }
 }

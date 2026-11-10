@@ -24,9 +24,10 @@ public class AccessReportController {
 
     @GetMapping("/access-report")
     public Mono<ResponseEntity<AccessReportResponse>> getAccessReport(
-            @RequestParam @NotBlank(message = "org parameter must not be blank") String org
+            @RequestParam @NotBlank(message = "org parameter must not be blank") String org,
+            @RequestParam(defaultValue = "false") boolean forceRefresh
     ) {
-        return accessReportService.generateReport(org)
+        return accessReportService.generateReport(org.trim(), forceRefresh)
                 .map(ResponseEntity::ok);
     }
 }
