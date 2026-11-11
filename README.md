@@ -13,6 +13,7 @@ Built for reliability, scalability, and clean API design.
 ![WebFlux](https://img.shields.io/badge/WebFlux-Reactive-blue)
 ![Build](https://img.shields.io/badge/Maven-Build-red)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sonuworks/github-access-report/badge)](https://scorecard.dev/viewer/?uri=github.com/{owner}/{repo})
 
 </div>
 
