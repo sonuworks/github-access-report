@@ -9,11 +9,12 @@ Built for reliability, scalability, and clean API design.
 <br>
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.13-brightgreen)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.7-brightgreen)
 ![WebFlux](https://img.shields.io/badge/WebFlux-Reactive-blue)
 ![Build](https://img.shields.io/badge/Maven-Build-red)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sonuworks/github-access-report/badge)](https://scorecard.dev/viewer/?uri=github.com/{owner}/{repo})
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sonuworks/github-access-report/badge)](https://scorecard.dev/viewer/?uri=github.com/sonuworks/github-access-report)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10397/badge)](https://www.bestpractices.dev/en)
 
 </div>
 
