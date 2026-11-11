@@ -8,14 +8,15 @@ on:
   schedule:
     - cron: '30 4 * * 1'
 
-permissions:
-  contents: read
-  security-events: write
+permissions: read-all
 
 jobs:
   analyze:
     name: Analyze Java
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout repository
