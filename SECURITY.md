@@ -35,3 +35,4 @@ This project follows these security practices:
 - GitHub Actions are pinned to full commit SHAs
 - The principle of least privilege is applied to workflow permissions
 - Container images use minimal base images (Alpine JRE)
+
