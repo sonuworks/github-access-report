@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM maven:3.9-eclipse-temurin-21-alpine@sha256:308cba8b638ed7e4658cea3f8399066219466211c805f6d5728c3c9c7614661b AS builder
+FROM maven:3.9-eclipse-temurin-26-alpine@sha256:4c85d516dd8c7e50d49a403d604e565e0dbb09a790186fe3245725d313ae7cb9 AS builder
 WORKDIR /workspace
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
